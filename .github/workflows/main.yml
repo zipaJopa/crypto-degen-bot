@@ -1,0 +1,34 @@
+name: Crypto-Degen-Bot Agent 24/7
+
+on:
+  schedule:
+    - cron: '0 */6 * * *'  # Every 6 hours
+  workflow_dispatch:
+
+jobs:
+  generate-value:
+    runs-on: ubuntu-latest
+    steps:
+    - uses: actions/checkout@v3
+    
+    - name: Setup Python
+      uses: actions/setup-python@v4
+      with:
+        python-version: '3.11'
+    
+    - name: Install dependencies
+      run: |
+        pip install requests beautifulsoup4 asyncio
+    
+    - name: Run Crypto-Degen-Bot Agent
+      env:
+        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      run: python agent.py
+    
+    - name: Commit Results
+      run: |
+        git config --local user.email "action@github.com"
+        git config --local user.name "Wave2 Agent"
+        git add .
+        git diff --staged --quiet || git commit -m "💰 Wave2 value: $(date)"
+        git push
